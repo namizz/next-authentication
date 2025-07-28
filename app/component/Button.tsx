@@ -11,8 +11,8 @@ const Button = ({ name, onClick, type, disabled }: ButtonProps) => {
     <button
       disabled={disabled}
       type={type || "button"}
-      className={`rounded-full border text-center py-2 w-full bg-indigo-900  text-white font-bold ${
-        disabled && "bg-indigo-300"
+      className={`rounded-full border text-center py-2 w-full  text-white font-bold ${
+        disabled ? "bg-indigo-300" : "bg-indigo-900"
       }`}
       onClick={onClick}
     >

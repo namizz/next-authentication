@@ -1,16 +1,28 @@
 "use client";
-import { redirect } from "next/dist/server/api-utils";
-import Button from "./component/Button";
-import { signIn } from "next-auth/react";
+
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  // useEffect(() => {
-  //   signIn();
-  // }, []);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") return <div>Loading...</div>;
+  if (!session) return null;
+
   return (
-    <div className="w-lg">
-      <Button onClick={() => signIn("google")} name="Log In" />
+    <div>
+      <p>Hello, {session.user?.name}</p>
+      <button className="border" onClick={() => signOut()}>
+        Sign Out
+      </button>
     </div>
   );
 }

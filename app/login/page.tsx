@@ -1,13 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageStruct from "../component/PageStruct";
 import InputBox from "../component/InputBox";
 import Button from "../component/Button";
 import { useForm } from "react-hook-form";
-import { login } from "../api/api";
 import Link from "next/link";
 import { DevTool } from "@hookform/devtools";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 interface LogInField {
   password: string;
@@ -24,21 +24,34 @@ const LogIn = () => {
 
   const [loading, setLoading] = useState(false);
   const [errormsg, setMsg] = useState("");
+  const router = useRouter();
 
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/"); // Redirect to home if already logged in
+    }
+  }, [status, router]);
   const onSubmit = async (data: LogInField) => {
     setLoading(true);
-    console.log(data);
     setMsg("");
-    try {
-      const response = await login(data);
-      if (response.success) {
-        console.log("LoginSuceesful");
-      } else setMsg(response?.message || "Login faild. Please try again");
-    } catch (error) {
-      setMsg("Something went wrong. Try again later.");
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
+
+    if (result?.error) {
+      setMsg(result.error);
+    } else {
+      router.push("/");
     }
+
     setLoading(false);
   };
+
   return (
     <form className="" noValidate onSubmit={handleSubmit(onSubmit)}>
       <PageStruct title="Welcome Back,">

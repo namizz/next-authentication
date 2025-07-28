@@ -6,6 +6,7 @@ import InputBox from "../component/InputBox";
 import { useForm } from "react-hook-form";
 import { verifyEmail } from "../api/api";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 interface Code {
   email: string;
@@ -18,6 +19,7 @@ const VerifyEmail = () => {
   const email = searchParams.get("email");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const router = useRouter();
 
   const [count, setCount] = useState(30);
   useEffect(() => {
@@ -43,7 +45,7 @@ const VerifyEmail = () => {
       const response = await verifyEmail({ email, OTP: data.OTP });
       console.log(response);
       if (response.success) {
-        console.log("WOrked");
+        router.push("/");
       } else {
         setErr(response?.message || "Verification Failed");
       }

@@ -23,15 +23,3 @@ export const verifyEmail = async (data) => {
   );
   return response.json();
 };
-
-export const login = async (data) => {
-  const response = await fetch("https://akil-backend.onrender.com/login", {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-  return response.json();
-};

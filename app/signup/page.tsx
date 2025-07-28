@@ -1,16 +1,15 @@
 "use client";
 import Button from "../component/Button";
 
-import React from "react";
 import PageStruct from "../component/PageStruct";
 import InputBox from "../component/InputBox";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { signup } from "@/app/api/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SignUpField {
   name: string;
@@ -30,6 +29,12 @@ const SignUp = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errmsg, setMsg] = useState("");
+  const { data: session, status } = useSession();
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const onSubmit = async (data: SignUpField) => {
     setLoading(true);
@@ -55,7 +60,8 @@ const SignUp = () => {
     <form className="" noValidate onSubmit={handleSubmit(onSubmit)}>
       <PageStruct title="Sign Up Today!">
         <button
-          onClick={() => signIn("google")}
+          type="button"
+          onClick={() => signIn("google", { callbackUrl: "/" })}
           className="w-full border border-gray-300 flex items-center justify-center p-2 rounded my-4 text-indigo-800 font-bold "
         >
           <img
