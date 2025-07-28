@@ -7,9 +7,13 @@ interface Pageprops {
 
 const PageStruct = ({ title, children }: Pageprops) => {
   return (
-    <div className="text-sm">
-      <h1 className="text-2xl font-extrabold text-center ">{title}</h1>
-      {children}
+    <div className="flex h-screen justify-center items-center">
+      <div className="text-sm w-90">
+        <h1 className="text-2xl font-extrabold text-center text-gray-700">
+          {title}
+        </h1>
+        {children}
+      </div>
     </div>
   );
 };

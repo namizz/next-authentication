@@ -8,6 +8,8 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
+import { signup } from "@/app/api/api";
+import { useRouter } from "next/navigation";
 
 interface SignUpField {
   name: string;
@@ -24,15 +26,21 @@ const SignUp = () => {
     control,
     formState: { errors },
   } = form;
-  const onSubmit = (data: SignUpField) => {
-    console.log(data);
+  const router = useRouter();
+  const onSubmit = async (data: SignUpField) => {
+    console.log(data, process.env.AKIL_URL);
+    const response = await signup(data);
+    if (response?.success) {
+      router.push(`/verifyEmail?email=${encodeURIComponent(data.email)}`);
+    }
+    console.log(response);
   };
   return (
-    <form className="w-md " noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form className="" noValidate onSubmit={handleSubmit(onSubmit)}>
       <PageStruct title="Sign Up Today!">
         <button
-          type="submit"
-          className="w-full border border-gray-400 flex items-center justify-center p-2 rounded my-4 text-indigo-800 font-bold "
+          onClick={() => signIn("google")}
+          className="w-full border border-gray-300 flex items-center justify-center p-2 rounded my-4 text-indigo-800 font-bold "
         >
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJg75LWB1zIJt1VTZO7O68yKciaDSkk3KMdw&s"
@@ -49,6 +57,7 @@ const SignUp = () => {
         />
 
         <InputBox
+          type="email"
           label="Email Address"
           ph="Enter email address"
           register={register("email", {
@@ -62,6 +71,7 @@ const SignUp = () => {
         />
 
         <InputBox
+          type="password"
           label="Password"
           ph="Enter password"
           register={register("password", {
@@ -75,6 +85,7 @@ const SignUp = () => {
         />
 
         <InputBox
+          type="password"
           label="Confirm Password"
           ph="Re-enter password"
           register={register("confPassword", {
@@ -82,7 +93,7 @@ const SignUp = () => {
           })}
           error={errors.confPassword?.message}
         />
-        <Button name="Continue" onClick={signIn} />
+        <Button name="Continue" type="submit" />
         <p className="px-1 py-4">
           {" "}
           Already have an account?{"  "}
