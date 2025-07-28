@@ -6,7 +6,10 @@ interface ButtonProps {
 }
 const Button = ({ name, onClick }: ButtonProps) => {
   return (
-    <button className="rounded-full border text-center p-2" onClick={onClick}>
+    <button
+      className="rounded-full border text-center py-2 w-full bg-indigo-900  text-white font-bold"
+      onClick={onClick}
+    >
       {name}
     </button>
   );
