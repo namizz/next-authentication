@@ -16,8 +16,9 @@ export const verifyEmail = async (data) => {
     {
       headers: {
         "Content-Type": "application/json",
-        body: JSON.stringify(data),
       },
+      method: "POST",
+      body: JSON.stringify(data),
     }
   );
   return response.json();

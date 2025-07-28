@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { signup } from "@/app/api/api";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface SignUpField {
   name: string;
@@ -27,14 +28,29 @@ const SignUp = () => {
     formState: { errors },
   } = form;
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [errmsg, setMsg] = useState("");
+
   const onSubmit = async (data: SignUpField) => {
-    console.log(data, process.env.AKIL_URL);
-    const response = await signup(data);
-    if (response?.success) {
-      router.push(`/verifyEmail?email=${encodeURIComponent(data.email)}`);
+    setLoading(true);
+    setMsg("");
+
+    try {
+      const response = await signup(data);
+      if (response?.success) {
+        router.push(`/verifyEmail?email=${encodeURIComponent(data.email)}`);
+      } else {
+        setMsg("Something went wrong. Please Try again.");
+      }
+      console.log(response);
+    } catch (err) {
+      setMsg("Something went wrong. Please Try again later.");
+      console.error("Signup error", err);
+    } finally {
+      setLoading(false);
     }
-    console.log(response);
   };
+
   return (
     <form className="" noValidate onSubmit={handleSubmit(onSubmit)}>
       <PageStruct title="Sign Up Today!">
@@ -93,7 +109,15 @@ const SignUp = () => {
           })}
           error={errors.confPassword?.message}
         />
-        <Button name="Continue" type="submit" />
+        {errmsg && (
+          <p className="text-red-400 text-center text-xsm">{errmsg}</p>
+        )}
+        <Button
+          disabled={loading}
+          name={loading ? "Sending Code..." : "Continue"}
+          type="submit"
+        />
+
         <p className="px-1 py-4">
           {" "}
           Already have an account?{"  "}

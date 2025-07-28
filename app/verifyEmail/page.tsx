@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PageStruct from "../component/PageStruct";
 import Button from "../component/Button";
 import InputBox from "../component/InputBox";
@@ -14,17 +14,44 @@ interface Code {
 const VerifyEmail = () => {
   const form = useForm<Code>();
   const { register, handleSubmit, formState } = form;
-  const count = "0:30";
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  const [count, setCount] = useState(30);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const onSubmit = async (data: Code) => {
+    setErr("");
+
     if (!email) return;
+    setLoading(true);
     console.log(email);
-    const response = await verifyEmail({ email, OTP: data.OTP });
-    if (response.success) {
-      console.log("WOrked");
+    try {
+      const response = await verifyEmail({ email, OTP: data.OTP });
+      console.log(response);
+      if (response.success) {
+        console.log("WOrked");
+      } else {
+        setErr(response?.message || "Verification Failed");
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      setErr("Verification Failed");
     }
+    setLoading(false);
   };
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -37,15 +64,27 @@ const VerifyEmail = () => {
           ph="Enter Verification Code"
           register={register("OTP", { required: "Enter verification code" })}
         />
-        <p className="text-gray-500 text-center pt-4 pb-8">
-          You can request to{" "}
-          <span className="text-indigo-800 font-semibold">Resend Code</span> in
-          <span className="text-indigo-800 font-semibold">
-            {" "}
-            {count || "0:30"}
-          </span>
-        </p>
-        <Button name="Continue" type="submit" />
+        {err && <p className="text-red-400 text-center text-xsm">{err}</p>}
+        {count != 0 ? (
+          <p className="text-gray-500 text-center pt-4 pb-8">
+            You can request to{" "}
+            <span className="text-indigo-800 font-semibold">Resend Code</span>{" "}
+            in
+            <span className="text-indigo-800 font-semibold">
+              {" 0:"}
+              {count || "30"}
+            </span>
+          </p>
+        ) : (
+          <button className="text-indigo-800 font-semibold w-full py-2 my-2  border rounded-full">
+            Resend
+          </button>
+        )}
+        <Button
+          name={loading ? "Verifying..." : "Continue"}
+          disabled={loading}
+          type="submit"
+        />
       </PageStruct>
     </form>
   );

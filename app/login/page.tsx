@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import PageStruct from "../component/PageStruct";
 import InputBox from "../component/InputBox";
 import Button from "../component/Button";
@@ -22,13 +22,22 @@ const LogIn = () => {
     formState: { errors },
   } = form;
 
-  const onSubmit = async (data: LogInField) => {
-    console.log(data);
+  const [loading, setLoading] = useState(false);
+  const [errormsg, setMsg] = useState("");
 
-    const response = await login(data);
-    if (response.success) {
-      console.log("LoginSuceesful");
+  const onSubmit = async (data: LogInField) => {
+    setLoading(true);
+    console.log(data);
+    setMsg("");
+    try {
+      const response = await login(data);
+      if (response.success) {
+        console.log("LoginSuceesful");
+      } else setMsg(response?.message || "Login faild. Please try again");
+    } catch (error) {
+      setMsg("Something went wrong. Try again later.");
     }
+    setLoading(false);
   };
   return (
     <form className="" noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -60,7 +69,14 @@ const LogIn = () => {
           })}
           error={errors.password?.message}
         />
-        <Button name="Continue" type="submit" />
+        {errormsg && (
+          <p className="text-red-400 text-center text-xsm">{errormsg}</p>
+        )}
+        <Button
+          disabled={loading}
+          name={loading ? "Logging in..." : "Continue"}
+          type="submit"
+        />
         <p className="px-1 py-4">
           {" "}
           Already have an account?{"  "}
